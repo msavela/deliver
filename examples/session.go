@@ -13,19 +13,19 @@ type Session struct {
 type SessionMiddleware struct{}
 func (r *SessionMiddleware) ServeHTTP(res deliver.Response, req *deliver.Request, next func()) {
 	// Set session with example username
-	session := Session{"example@somewhere.com"}
+	session := Session{"username"}
 	req.Context.Set("session", session)
 
 	next()
 }
 
 func main() {
-	n := deliver.New()
+	d := deliver.New()
 
 	// Set global middleware to handle session
-	n.Use(&SessionMiddleware{})
+	d.Use(&SessionMiddleware{})
 
-	n.GET("/", func(res deliver.Response, req *deliver.Request) {
+	d.GET("/", func(res deliver.Response, req *deliver.Request) {
 		if session, ok := req.Context.Get("session").(Session); ok {
 			// Session found, respond with session username
 			res.Status(http.StatusOK).Send(session.Username)
@@ -35,5 +35,5 @@ func main() {
 		}
 	})
 
-	log.Fatal(http.ListenAndServe(":8080", n))
+	log.Fatal(http.ListenAndServe(":8080", d))
 }
