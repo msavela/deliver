@@ -107,17 +107,20 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	response := NewResponse(w)
 	request := NewRequest(req, context, params, splats)
 
-	// Handle global middleware
-	r.handleMiddleware(response, request, r.middleware, func() {
-		// Global middleware OK, proceed to route specific middleware
+	// Middleware to handle
+	// Include route specific middleware if any
+	middleware := r.middleware
+	if routeMatch != nil {
+		middleware = append(middleware, routeMatch.middleware...)
+	}
+
+	// Handle middleware
+	r.handleMiddleware(response, request, middleware, func() {
+		// Moddleware done, proceed to route handler
 		if routeMatch != nil {
-			// Handle route specific middleware
-			r.handleMiddleware(response, request, routeMatch.middleware, func() {
-				// Finally call the route handler
-				routeMatch.handler(response, request)
-			})
+			routeMatch.handler(response, request)
 		} else {
-			// Default 404 handler
+			// Default 404 handler in case route not found
 			http.NotFound(w, req)
 		}
 	})
