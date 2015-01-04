@@ -37,7 +37,7 @@ type (
 func NewRoute(pattern string, handler HandlerFunc) *Route {
 	r := &Route{}
 	r.pattern	= pattern
-	r.re		= r.normalize(false, false)
+	r.re		= r.normalize(false, false) // Case-insensitive and not strict
 	r.keys		= r.re.SubexpNames()[1:]
 	r.handler	= handler
 	r.methods	= []string{}
@@ -100,7 +100,7 @@ func (r *Route) Match(req *http.Request) []string {
 	return nil
 }
 
-// Does route repond to particular request method
+// Does route repond to particular request method.
 func (r *Route) HasMethod(method string) bool {
 	for _, m := range r.methods {
 		if m == method {
@@ -111,11 +111,14 @@ func (r *Route) HasMethod(method string) bool {
 }
 
 // Convert string path to regexp.
+//
+// `sensitive` flag controls case-sensitivity.
+// `strict` flag determines whether route accepts / at the end of the url.
 func (r* Route) normalize(sensitive bool, strict bool) *regexp.Regexp {
 	path := r.pattern
 
-	// Accept / at the end of the route?
-	if strict { path += "/?" }
+	// Accept / at the end of the url?
+	if !strict { path += "/?" }
 
 	path = regexp.MustCompile(`\/\(`).ReplaceAllString(path, "(?:/")
 
@@ -167,6 +170,11 @@ func (r* Route) normalize(sensitive bool, strict bool) *regexp.Regexp {
 
 	path = regexp.MustCompile(`([\/.])`).ReplaceAllString(path, "\\$1")
 	path = regexp.MustCompile(`\*`).ReplaceAllString(path, "(.*)")
+
+	// Case-insensitivity
+	if !sensitive {
+		path = "(?i)" + path
+	}
 
 	return regexp.MustCompile("^" + path + "$")
 }
