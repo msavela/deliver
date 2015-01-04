@@ -1,7 +1,7 @@
 package main
 
 import (
-	"../"
+	"github.com/msavela/deliver"
 	"net/http"
 	"log"
 )
