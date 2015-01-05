@@ -2,7 +2,6 @@ package deliver
 
 import (
 	"net/http"
-	"fmt"
 )
 
 type Router struct {
@@ -81,8 +80,6 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Store matched route
 	var routeMatch *Route
 
-	fmt.Println(req.Proto, req.Method, req.URL)
-
 	// Loop through available routes for a match
 	for _, route := range r.routes {
 		if matches := route.Match(req); matches != nil && len(matches) > 0 {
@@ -109,9 +106,13 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Middleware to handle
 	// Include route specific middleware if any
-	middleware := r.middleware
+	var middleware []*Middleware
 	if routeMatch != nil {
+		// Include global and local
 		middleware = append(middleware, routeMatch.middleware...)
+	} else {
+		// Include global only
+		middleware = r.middleware
 	}
 
 	// Handle middleware
