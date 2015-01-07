@@ -4,6 +4,11 @@ type Context struct {
 	Keys map[string]interface{}
 }
 
+// Initialize new context.
+func NewContext() *Context {
+	return &Context{}
+}
+
 // Sets new key/value pair.
 // Initializes a new hash table in case not already specified.
 func (c *Context) Set(key string, item interface{}) {
