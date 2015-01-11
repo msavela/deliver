@@ -109,7 +109,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var middleware []*Middleware
 	if routeMatch != nil {
 		// Include global and local
-		middleware = append(middleware, routeMatch.middleware...)
+		middleware = append(r.middleware, routeMatch.middleware...)
 	} else {
 		// Include global only
 		middleware = r.middleware
