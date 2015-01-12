@@ -102,7 +102,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	response := NewResponse(w)
-	request := NewRequest(req, context, params, splats)
+	request  := NewRequest(req, context, params, splats)
 
 	// Middleware to handle
 	// Include route specific middleware if any
@@ -116,25 +116,27 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Handle middleware
-	r.handleMiddleware(response, request, middleware, func() {
-		// Moddleware done, proceed to route handler
-		if routeMatch != nil {
+	r.handleMiddleware(response, request, middleware, func(interrupt bool) {
+		// Middleware done, proceed to route handler
+		if routeMatch != nil && !interrupt {
 			routeMatch.handler(response, request)
 		} else {
-			// Default 404 handler in case route not found
 			http.NotFound(w, req)
 		}
 	})
 }
 
-func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Middleware, proceed func()) {
+// Handle request middleware.
+func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Middleware, proceed func(bool)) {
 	index := 0
+	interrupt := true
 
 	var next func()
 	next = func() {
 		if len(middleware) == 0 || index > len(middleware) - 1 {
-			// No middleware available, proceed
-			proceed()
+			// No more middleware available
+			// Mark as not interrupted by middleware and proceed
+			interrupt = false
 			return
 		}
 
@@ -147,4 +149,7 @@ func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Midd
 
 	// Loop through available middleware
 	next()
+
+	// Proceed once done
+	proceed(interrupt)
 }
