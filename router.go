@@ -116,9 +116,9 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Handle middleware
-	r.handleMiddleware(response, request, middleware, func(interrupt bool) {
+	r.handleMiddleware(response, request, middleware, func() {
 		// Middleware done, proceed to route handler
-		if routeMatch != nil && !interrupt {
+		if routeMatch != nil {
 			routeMatch.handler(response, request)
 		} else {
 			http.NotFound(w, req)
@@ -127,16 +127,14 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 // Handle request middleware.
-func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Middleware, proceed func(bool)) {
+func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Middleware, proceed func()) {
 	index := 0
-	interrupt := true
 
 	var next func()
 	next = func() {
 		if len(middleware) == 0 || index > len(middleware) - 1 {
-			// No more middleware available
-			// Mark as not interrupted by middleware and proceed
-			interrupt = false
+			// No more middleware available, proceed
+			proceed()
 			return
 		}
 
@@ -149,7 +147,4 @@ func (r *Router) handleMiddleware(res Response, req *Request, middleware []*Midd
 
 	// Loop through available middleware
 	next()
-
-	// Proceed once done
-	proceed(interrupt)
 }
