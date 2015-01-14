@@ -28,10 +28,10 @@ func main() {
 	d.GET("/", func(res deliver.Response, req *deliver.Request) {
 		if session, ok := req.Context.Get("session").(Session); ok {
 			// Session found, respond with session username
-			res.Status(http.StatusOK).Send(session.Username)
+			res.Send(session.Username)
 		} else {
 			// Session not found
-			res.Status(http.StatusNotFound).Send("Session not found")
+			res.Send("Session not found")
 		}
 	})
 
