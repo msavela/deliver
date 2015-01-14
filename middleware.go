@@ -30,7 +30,7 @@ func NewMiddleware(handler HandlerNext) *Middleware {
 func NewMiddlewareHandler(handler http.Handler) *Middleware {
 	m := &Middleware{}
 	m.handler = MiddlewareHandlerFunc(func(res Response, req *Request, next func()) {
-		handler.ServeHTTP(res.ResponseWriter, req.Request)
+		handler.ServeHTTP(res, req.Request)
 		next()
 	})
 	return m
@@ -39,7 +39,7 @@ func NewMiddlewareHandler(handler http.Handler) *Middleware {
 func NewMiddlewareHandlerNext(handler HttpHandlerNext) *Middleware {
 	m := &Middleware{}
 	m.handler = MiddlewareHandlerFunc(func(res Response, req *Request, next func()) {
-		handler.ServeHTTP(res.ResponseWriter, req.Request, next)
+		handler.ServeHTTP(res, req.Request, next)
 	})
 	return m
 }

@@ -11,7 +11,7 @@ type Request struct {
 	Splats			[]string
 }
 
-// Initialize new request.
+// Initialize a new request.
 func NewRequest(req *http.Request, c *Context, params map[string]string, splats []string) *Request {
 	r := &Request{}
 	r.Request 	= req

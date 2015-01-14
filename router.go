@@ -108,10 +108,10 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Include route specific middleware if any
 	var middleware []*Middleware
 	if routeMatch != nil {
-		// Include global and local
+		// Include both global and local middleware
 		middleware = append(r.middleware, routeMatch.middleware...)
 	} else {
-		// Include global only
+		// Include global middleware only
 		middleware = r.middleware
 	}
 
@@ -120,10 +120,13 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// Middleware done, proceed to route handler
 		if routeMatch != nil {
 			routeMatch.handler(response, request)
-		} else {
-			http.NotFound(w, req)
 		}
 	})
+
+	// NotFound handler in case response not written
+	if !response.Written() {
+		http.NotFound(response, req)
+	}
 }
 
 // Handle request middleware.

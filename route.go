@@ -47,7 +47,7 @@ func NewRoute(pattern string, handler HandlerFunc) *Route {
 // Initialize new route with http.HandlerFunc handler.
 func NewRouteHandler(pattern string, handler http.HandlerFunc) *Route {
 	return NewRoute(pattern, HandlerFunc(func(res Response, req *Request) {
-		handler(res.ResponseWriter, req.Request)
+		handler(res, req.Request)
 	}))
 }
 
