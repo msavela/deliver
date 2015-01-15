@@ -1,8 +1,8 @@
 package deliver
 
 import (
-	"net/http"
 	"testing"
+	"net/http"
 )
 
 type routeTest struct {
@@ -144,6 +144,7 @@ func TestRoutes(t *testing.T) {
 	}
 }
 
+/* Helpers */
 func testRoute(t *testing.T, test routeTest) {
 	match := test.route.Match(test.request)
 
