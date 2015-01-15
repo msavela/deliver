@@ -9,6 +9,7 @@ type (
 		http.ResponseWriter
 		Written()		bool
 		Status() 		int
+		SetStatus(int)	*response
 		Send(string)	*response
 	}
 
@@ -51,6 +52,7 @@ func (r *response) Status() int {
 
 // Set response status code.
 func (r *response) SetStatus(status int) *response {
+	r.status = status
 	r.WriteHeader(status)
 	return r
 }
